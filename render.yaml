@@ -8,25 +8,15 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod,neon
-      - key: REDIS_HOST
+      - key: REDIS_URL
         fromService:
           type: redis
           name: distributed-rate-limiter-redis
-          property: host
-      - key: REDIS_PORT
-        fromService:
-          type: redis
-          name: distributed-rate-limiter-redis
-          property: port
+          property: connectionString
       - key: SERVICE_A_URL
         value: http://127.0.0.1:${PORT}/backend/service-a
       - key: SERVICE_B_URL
         value: http://127.0.0.1:${PORT}/backend/service-b
-      - key: SPRING_DATA_REDIS_PASSWORD
-        fromService:
-          type: redis
-          name: distributed-rate-limiter-redis
-          property: password
       - key: JWT_SECRET_BASE64
         generateValue: true
       - key: ACTUATOR_API_KEY
@@ -48,3 +38,4 @@ services:
 
   - type: redis
     name: distributed-rate-limiter-redis
+    ipAllowList: []
