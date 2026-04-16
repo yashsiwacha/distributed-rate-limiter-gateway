@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: distributed-rate-limiter
+
+resources:
+  - namespace.yml
+  - redis/deployment.yml
+  - redis/service.yml
+  - gateway/configmap.yml
+  - gateway/secret.yml
+  - gateway/deployment.yml
+  - gateway/service.yml
+  - gateway/hpa.yml
+
+commonLabels:
+  app.kubernetes.io/part-of: distributed-rate-limiter-gateway

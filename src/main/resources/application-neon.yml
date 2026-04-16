@@ -1,0 +1,21 @@
+spring:
+  autoconfigure:
+    exclude: ${SPRING_AUTOCONFIGURE_EXCLUDE:}
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME:}
+    password: ${DATABASE_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT_MS:30000}
+      validation-timeout: ${DB_VALIDATION_TIMEOUT_MS:5000}
+  sql:
+    init:
+      mode: never
+
+management:
+  health:
+    db:
+      enabled: true

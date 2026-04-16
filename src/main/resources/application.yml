@@ -1,0 +1,94 @@
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+    min-response-size: 1024
+
+spring:
+  autoconfigure:
+    exclude: ${SPRING_AUTOCONFIGURE_EXCLUDE:org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration}
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+  application:
+    name: distributed-rate-limiter-gateway
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          enabled: true
+          max-active: ${REDIS_POOL_MAX_ACTIVE:64}
+          max-idle: ${REDIS_POOL_MAX_IDLE:32}
+          min-idle: ${REDIS_POOL_MIN_IDLE:8}
+          max-wait: 500ms
+
+security:
+  jwt:
+    secret: ${JWT_SECRET_BASE64:c3VwZXItc2VjcmV0LWtleS1jaGFuZ2UtbWUtdG8tYS1wcm9wZXItMzItYnl0ZS1zZWNyZXQ=}
+    expiration-seconds: 3600
+    issuer: distributed-rate-limiter-gateway
+
+gateway:
+  routing:
+    services:
+      service-a: ${SERVICE_A_URL:http://localhost:8080/backend/service-a}
+      service-b: ${SERVICE_B_URL:http://localhost:8080/backend/service-b}
+    internal-routing-token: ${INTERNAL_ROUTING_TOKEN:local-dev-internal-token-change-me}
+    connect-timeout-ms: ${UPSTREAM_CONNECT_TIMEOUT_MS:2000}
+    read-timeout-ms: ${UPSTREAM_READ_TIMEOUT_MS:5000}
+  security:
+    require-jwt-for-api: true
+    allow-demo-token-endpoint: true
+    actuator-api-key: ${ACTUATOR_API_KEY:}
+  rate-limit:
+    redis-prefix: rl
+    algorithm-by-route:
+      service-a: TOKEN_BUCKET
+      service-b: SLIDING_WINDOW_LOG
+    user:
+      token-bucket:
+        capacity: 120
+        refill-tokens: 120
+        refill-period-seconds: 60
+      sliding-window:
+        max-requests: 180
+        window-seconds: 60
+    ip:
+      token-bucket:
+        capacity: 60
+        refill-tokens: 60
+        refill-period-seconds: 60
+      sliding-window:
+        max-requests: 90
+        window-seconds: 60
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      redisRateLimiter:
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 250ms
+        sliding-window-size: 20
+        minimum-number-of-calls: 10
+        wait-duration-in-open-state: 20s
+        permitted-number-of-calls-in-half-open-state: 5

@@ -1,0 +1,65 @@
+groups:
+  - name: rate-limiter-gateway-alerts
+    interval: 30s
+    rules:
+      - alert: GatewayRejectRatioHigh
+        expr: |
+          100 * (
+            sum(rate(gateway_requests_rejected_total[5m])) /
+            clamp_min(
+              sum(rate(gateway_requests_allowed_total[5m])) +
+              sum(rate(gateway_requests_rejected_total[5m])),
+              0.001
+            )
+          ) > 15
+        for: 10m
+        labels:
+          severity: warning
+          service: gateway
+        annotations:
+          summary: "Gateway 429 reject ratio is high"
+          description: "Reject ratio is above 15% for 10 minutes. Check traffic patterns and rate-limit policy values."
+
+      - alert: GatewayRedisFallbackTriggered
+        expr: increase(gateway_ratelimit_fallback_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+          service: gateway
+        annotations:
+          summary: "Redis fallback mode is active"
+          description: "Fallback limiter increments detected in the last 5 minutes. Redis may be slow or unavailable."
+
+      - alert: GatewayRedisCircuitOpenSpike
+        expr: increase(gateway_redis_circuit_open_total[5m]) > 2
+        for: 5m
+        labels:
+          severity: critical
+          service: gateway
+        annotations:
+          summary: "Redis circuit breaker opened repeatedly"
+          description: "Circuit open events exceeded threshold in 5 minutes. Investigate Redis health and network latency."
+
+      - alert: GatewayRedisMeanLatencyHigh
+        expr: |
+          1000 * (
+            sum(rate(gateway_redis_latency_seconds_sum[5m])) /
+            clamp_min(sum(rate(gateway_redis_latency_seconds_count[5m])), 0.001)
+          ) > 200
+        for: 10m
+        labels:
+          severity: warning
+          service: gateway
+        annotations:
+          summary: "Redis mean latency is high"
+          description: "Mean Redis round-trip latency is above 200ms for 10 minutes."
+
+      - alert: Gateway5xxRateHigh
+        expr: sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) > 2
+        for: 10m
+        labels:
+          severity: critical
+          service: gateway
+        annotations:
+          summary: "Gateway 5xx rate is high"
+          description: "5xx response rate is above 2 req/s for 10 minutes."

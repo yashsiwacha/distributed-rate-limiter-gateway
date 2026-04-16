@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gateway Demo Showcase</title>
+  <link rel="stylesheet" href="/showcase/styles.css" />
+</head>
+<body>
+  <div class="bg-layer"></div>
+
+  <header class="hero">
+    <div>
+      <p class="kicker">Distributed Rate Limiter + API Gateway</p>
+      <h1>Demo Console</h1>
+      <p class="subtitle">
+        Live showcase for JWT auth, Token Bucket vs Sliding Window behavior,
+        fallback/circuit resilience, and operational signals.
+      </p>
+    </div>
+    <div class="status-pill" id="serverHealth">Health: Checking...</div>
+  </header>
+
+  <main class="layout">
+    <section class="card auth-card">
+      <h2>1. Auth Setup</h2>
+      <div class="grid-two">
+        <label>
+          User ID
+          <input id="userId" value="alice" />
+        </label>
+        <label>
+          Bearer Token (manual override)
+          <input id="manualToken" placeholder="Paste token if /auth/token is disabled" />
+        </label>
+      </div>
+      <div class="row">
+        <button id="issueTokenBtn" class="btn primary">Issue Demo Token</button>
+        <button id="useManualTokenBtn" class="btn secondary">Use Manual Token</button>
+      </div>
+      <p class="muted" id="authMessage">No token loaded.</p>
+      <details>
+        <summary>Current token preview</summary>
+        <pre id="tokenPreview" class="log-box">(none)</pre>
+      </details>
+    </section>
+
+    <section class="card probe-card">
+      <h2>2. Route Probe</h2>
+      <div class="row wrap">
+        <button class="btn accent" data-route="/api/service-a/ping">Probe Service A (Token Bucket)</button>
+        <button class="btn accent" data-route="/api/service-b/ping">Probe Service B (Sliding Window)</button>
+      </div>
+      <div class="result-grid">
+        <div>
+          <h3>Last Response</h3>
+          <pre id="lastResponse" class="log-box">No probe yet.</pre>
+        </div>
+        <div>
+          <h3>Rate Headers</h3>
+          <pre id="lastHeaders" class="log-box">No headers yet.</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="card burst-card">
+      <h2>3. Burst Test (Live 429 Demo)</h2>
+      <div class="grid-three">
+        <label>
+          Route
+          <select id="burstRoute">
+            <option value="/api/service-a/ping">Service A (Token Bucket)</option>
+            <option value="/api/service-b/ping">Service B (Sliding Window)</option>
+          </select>
+        </label>
+        <label>
+          Requests
+          <input id="burstCount" type="number" min="1" max="500" value="120" />
+        </label>
+        <label>
+          Concurrency
+          <input id="burstConcurrency" type="number" min="1" max="50" value="12" />
+        </label>
+      </div>
+      <div class="row">
+        <button id="burstBtn" class="btn danger">Run Burst Test</button>
+      </div>
+      <div class="metrics-strip">
+        <article>
+          <span>Allowed</span>
+          <strong id="mAllowed">0</strong>
+        </article>
+        <article>
+          <span>Rejected (429)</span>
+          <strong id="mRejected">0</strong>
+        </article>
+        <article>
+          <span>Other Errors</span>
+          <strong id="mErrors">0</strong>
+        </article>
+        <article>
+          <span>Avg Latency</span>
+          <strong id="mLatency">0 ms</strong>
+        </article>
+      </div>
+      <div class="bars">
+        <div class="bar allowed"><span id="barAllowed"></span></div>
+        <div class="bar rejected"><span id="barRejected"></span></div>
+      </div>
+      <pre id="burstLog" class="log-box">Burst test not started.</pre>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>Demo URL:</span>
+    <code id="originText"></code>
+  </footer>
+
+  <script src="/showcase/app.js"></script>
+</body>
+</html>

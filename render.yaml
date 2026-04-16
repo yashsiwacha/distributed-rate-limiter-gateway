@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: distributed-rate-limiter-gateway
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod,neon
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: distributed-rate-limiter-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: distributed-rate-limiter-redis
+          property: port
+      - key: SPRING_DATA_REDIS_PASSWORD
+        fromService:
+          type: redis
+          name: distributed-rate-limiter-redis
+          property: password
+      - key: JWT_SECRET_BASE64
+        generateValue: true
+      - key: ACTUATOR_API_KEY
+        generateValue: true
+      - key: INTERNAL_ROUTING_TOKEN
+        generateValue: true
+      - key: GATEWAY_SECURITY_ALLOW_DEMO_TOKEN_ENDPOINT
+        value: "true"
+      - key: UPSTREAM_CONNECT_TIMEOUT_MS
+        value: "2000"
+      - key: UPSTREAM_READ_TIMEOUT_MS
+        value: "5000"
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+
+  - type: redis
+    name: distributed-rate-limiter-redis

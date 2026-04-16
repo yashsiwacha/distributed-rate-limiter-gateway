@@ -1,0 +1,24 @@
+server:
+  tomcat:
+    max-connections: 8192
+    threads:
+      max: 400
+      min-spare: 40
+
+spring:
+  main:
+    banner-mode: off
+
+gateway:
+  security:
+    allow-demo-token-endpoint: false
+
+management:
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: INFO
