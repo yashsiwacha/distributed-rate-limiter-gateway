@@ -9,10 +9,7 @@ services:
       - key: SPRING_PROFILES_ACTIVE
         value: prod,neon
       - key: REDIS_URL
-        fromService:
-          type: redis
-          name: distributed-rate-limiter-redis
-          property: connectionString
+        sync: false
       - key: SERVICE_A_URL
         value: http://127.0.0.1:${PORT}/backend/service-a
       - key: SERVICE_B_URL
@@ -35,7 +32,3 @@ services:
         sync: false
       - key: DATABASE_PASSWORD
         sync: false
-
-  - type: redis
-    name: distributed-rate-limiter-redis
-    ipAllowList: []
