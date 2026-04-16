@@ -36,8 +36,8 @@ security:
 gateway:
   routing:
     services:
-      service-a: ${SERVICE_A_URL:http://localhost:8080/backend/service-a}
-      service-b: ${SERVICE_B_URL:http://localhost:8080/backend/service-b}
+      service-a: ${SERVICE_A_URL:http://127.0.0.1:${server.port}/backend/service-a}
+      service-b: ${SERVICE_B_URL:http://127.0.0.1:${server.port}/backend/service-b}
     internal-routing-token: ${INTERNAL_ROUTING_TOKEN:local-dev-internal-token-change-me}
     connect-timeout-ms: ${UPSTREAM_CONNECT_TIMEOUT_MS:2000}
     read-timeout-ms: ${UPSTREAM_READ_TIMEOUT_MS:5000}
