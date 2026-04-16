@@ -18,6 +18,10 @@ services:
           type: redis
           name: distributed-rate-limiter-redis
           property: port
+      - key: SERVICE_A_URL
+        value: http://127.0.0.1:${PORT}/backend/service-a
+      - key: SERVICE_B_URL
+        value: http://127.0.0.1:${PORT}/backend/service-b
       - key: SPRING_DATA_REDIS_PASSWORD
         fromService:
           type: redis
